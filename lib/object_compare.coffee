@@ -1,0 +1,78 @@
+_ = require '../vendor/underscore-min'
+
+ObjectCompare = 
+
+  diff: (needle, haystack) ->
+    diff = ObjectCompare.contained_in(needle, haystack)
+    diffs = {}
+    _.each diff, (d) ->
+      joined_key = _.union(d.path, [d.key]).join('][')
+      diffs["[#{joined_key}]"] = {
+        expected: d.expected,
+        actual: d.actual
+      }
+    diffs
+
+  contained_in: (needle, haystack, history = []) ->
+    diffs = []
+    _.each needle, (val, key) ->
+      expected = if haystack? then haystack[key] else undefined
+      return if val == expected
+      if (val instanceof Object)
+        new_hist = _.union(history, [key])
+        diffs.push ObjectCompare.contained_in(val, expected, new_hist)
+      else
+        diffs.push ObjectCompare.diff_obj(history, key, val, expected)
+    _.flatten(diffs)
+
+  diff_obj: (history, key, expected, actual) ->
+    return {
+      path:     history
+      key:      key
+      expected: expected
+      actual:   actual || null}
+
+
+exports.ObjectCompare = ObjectCompare
+
+# needle = {
+#   "int": 1
+#   "obj": {
+#     "obj->int" : 2
+#     "obj->string" : "obj->foo"
+#     }
+#   "string": "foo"
+#   "array" : [1, 2]
+#   }
+# 
+# haystack = {
+#   "int": 1
+#   "extra-int": 3
+#   "obj": {
+#     "obj->int" : 2
+#     "obj->extra-int" : 4
+#     "obj->string" : "obj->foo"
+#     }
+#   "string": "foo"
+#   "array" : [1, 2]
+#   }
+# 
+# broken_needle = {
+#   "int": 1
+#   "obj": {
+#     "obj->int" : 2
+#     "obj->string" : "obj->foox"
+#     }
+#   "string": "foo"
+#   "array" : [1, 2]
+#   }
+# 
+# 
+# console.log ObjectCompare.diff(needle, haystack)
+# console.log "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+# console.log ObjectCompare.diff(broken_needle, haystack)
+# console.log "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+# console.log ObjectCompare.diff(haystack, needle)
+# console.log "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+# console.log ObjectCompare.diff(needle, needle)
+# console.log "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
