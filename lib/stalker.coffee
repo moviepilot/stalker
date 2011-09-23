@@ -10,7 +10,6 @@ class Stalker
     options = 
       method: def.method
       data:   JSON.stringify(def.request)
-      parser: rest.parsers.json
     rest.request(uri, options).on('complete', (data, response) =>
       @check_response data, response, def, cb
     ).on('error', (data, response) =>
@@ -19,7 +18,6 @@ class Stalker
 
   check_response: (data, response, def, cb) ->
     summary = {success: true, test: def.uri, errors: {}}
-
     @check_status summary, response, def
     @check_object summary, data, def
 
@@ -28,12 +26,17 @@ class Stalker
   check_object: (summary, data, def) ->
     return true unless def.response.body?
     actual = JSON.parse(def.response.body)
-    expected = data
-    diffs = ObjectCompare.diff(actual, expected)
-    return if _.isEmpty(diffs)
-    summary.success = false
-    summary.errors.body = diffs
-    false
+    try
+      expected = JSON.parse data
+      diffs = ObjectCompare.diff(actual, expected)
+      return if _.isEmpty(diffs)
+      summary.success = false
+      summary.errors.body = diffs
+      false
+    catch e
+      summary.success = false
+      summary.errors.body = {"invalid_syntax" : e}
+      false
 
   check_status: (summary, response, def) ->
     expected = parseInt(def.response_code)
