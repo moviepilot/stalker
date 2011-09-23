@@ -12,12 +12,11 @@ filename = _.last(process.argv)
 host     = _.first(_.rest(process.argv, -2))
 verbose  = _.include(process.argv, "-v")
 
-console.log "Probing #{host}"
 tests = ExampleParser.parseFile filename
 
 report = (summary) ->
   result = if summary.success == true then "✔" else "errors: "+JSON.stringify(summary.errors)
-  console.log "#{summary.test}: #{result}"
+  console.log "#{host}#{summary.test}: #{result}"
   Shout.report host, summary
   true
 
