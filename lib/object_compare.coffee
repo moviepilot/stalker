@@ -1,6 +1,6 @@
 _ = require '../vendor/underscore-min'
 
-ObjectCompare = 
+ObjectCompare =
 
   diff: (needle, haystack) ->
     diff = ObjectCompare.contained_in(needle, haystack)
@@ -18,7 +18,11 @@ ObjectCompare =
     _.each needle, (val, key) ->
       expected = if haystack? then haystack[key] else undefined
       return if val == expected
-      if (val instanceof Object)
+      if (haystack instanceof Array)
+        _.each haystack, (he) ->
+          arr_diff = ObjectCompare.contained_in(needle, he)
+          return if arr_diff.length == 0
+      else if (val instanceof Object)
         new_hist = _.union(history, [key])
         diffs.push ObjectCompare.contained_in(val, expected, new_hist)
       else
@@ -42,7 +46,17 @@ needle = {
     "obj->string" : "obj->foo"
     }
   "string": "foo"
-  "array" : [1, 2]
+  "array" : [{"1":1}, {"2":2}]
+  }
+
+unordered_needle = {
+  "int": 1
+  "obj": {
+    "obj->int" : 2
+    "obj->string" : "obj->foo"
+    }
+  "string": "foo"
+  "array" : [{"2":2}, {"1":1}]
   }
 
 haystack = {
@@ -54,7 +68,7 @@ haystack = {
     "obj->string" : "obj->foo"
     }
   "string": "foo"
-  "array" : [1, 2]
+  "array" : [{"1":1}, {"2":2}]
   }
 
 broken_needle = {
@@ -64,11 +78,12 @@ broken_needle = {
     "obj->string" : "obj->foox"
     }
   "string": "foo"
-  "array" : [1, 2]
+  "array" : [{"1":1}, {"2": 2}]
   }
 
 
-console.log("needle,        haystack") if _.keys(ObjectCompare.diff(needle, haystack)).length         > 0
-console.log("broken_needle, haystack") if _.keys(ObjectCompare.diff(broken_needle, haystack)).length == 0
-console.log("haystack,      needle"  ) if _.keys(ObjectCompare.diff(haystack, needle)).length        == 0
-console.log("needle,        needle"  ) if _.keys(ObjectCompare.diff(needle, needle)).length           > 0
+console.log("needle,           haystack") if _.keys(ObjectCompare.diff(needle, haystack)).length          > 0
+console.log("broken_needle,    haystack") if _.keys(ObjectCompare.diff(broken_needle, haystack)).length  == 0
+console.log("haystack,         needle"  ) if _.keys(ObjectCompare.diff(haystack, needle)).length         == 0
+console.log("needle,           needle"  ) if _.keys(ObjectCompare.diff(needle, needle)).length            > 0
+console.log("needle, unordered_needle"  ) if _.keys(ObjectCompare.diff(needle, unordered_needle)).length  > 0
