@@ -35,44 +35,40 @@ ObjectCompare =
 
 exports.ObjectCompare = ObjectCompare
 
-# needle = {
-#   "int": 1
-#   "obj": {
-#     "obj->int" : 2
-#     "obj->string" : "obj->foo"
-#     }
-#   "string": "foo"
-#   "array" : [1, 2]
-#   }
-# 
-# haystack = {
-#   "int": 1
-#   "extra-int": 3
-#   "obj": {
-#     "obj->int" : 2
-#     "obj->extra-int" : 4
-#     "obj->string" : "obj->foo"
-#     }
-#   "string": "foo"
-#   "array" : [1, 2]
-#   }
-# 
-# broken_needle = {
-#   "int": 1
-#   "obj": {
-#     "obj->int" : 2
-#     "obj->string" : "obj->foox"
-#     }
-#   "string": "foo"
-#   "array" : [1, 2]
-#   }
-# 
-# 
-# console.log ObjectCompare.diff(needle, haystack)
-# console.log "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-# console.log ObjectCompare.diff(broken_needle, haystack)
-# console.log "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-# console.log ObjectCompare.diff(haystack, needle)
-# console.log "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-# console.log ObjectCompare.diff(needle, needle)
-# console.log "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+needle = {
+  "int": 1
+  "obj": {
+    "obj->int" : 2
+    "obj->string" : "obj->foo"
+    }
+  "string": "foo"
+  "array" : [1, 2]
+  }
+
+haystack = {
+  "int": 1
+  "extra-int": 3
+  "obj": {
+    "obj->int" : 2
+    "obj->extra-int" : 4
+    "obj->string" : "obj->foo"
+    }
+  "string": "foo"
+  "array" : [1, 2]
+  }
+
+broken_needle = {
+  "int": 1
+  "obj": {
+    "obj->int" : 2
+    "obj->string" : "obj->foox"
+    }
+  "string": "foo"
+  "array" : [1, 2]
+  }
+
+
+console.log("needle,        haystack") if _.keys(ObjectCompare.diff(needle, haystack)).length         > 0
+console.log("broken_needle, haystack") if _.keys(ObjectCompare.diff(broken_needle, haystack)).length == 0
+console.log("haystack,      needle"  ) if _.keys(ObjectCompare.diff(haystack, needle)).length        == 0
+console.log("needle,        needle"  ) if _.keys(ObjectCompare.diff(needle, needle)).length           > 0

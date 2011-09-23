@@ -16,7 +16,7 @@ tests = ExampleParser.parseFile filename
 
 report = (summary) ->
   result = if summary.success == true then "✔" else "errors: "+JSON.stringify(summary.errors)
-  console.log "#{host}#{summary.test}: #{result}"
+  console.log "#{summary.test}: #{result}"
   Shout.report host, summary
   true
 
