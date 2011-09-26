@@ -14,18 +14,22 @@ verbose  = _.include(process.argv, "-v")
 
 tests = ExampleParser.parseFile filename
 
+success = true
+
 report = (summary) ->
   result = if summary.success == true then "✔" else "✗"
   errors = if summary.success == true then ""  else " errors "+JSON.stringify(summary.errors)
   console.log "#{result} #{summary.test}#{errors}"
+  success = success and summary.success
   Shout.report host, summary
   true
 
-stalker = new Stalker(host)
-_.map tests, (definition) ->
-  stalker.probe definition, report
+stalker = new Stalker(host, tests, report)
+stalker.run()
 
 if verbose
   _.map tests, (d) ->
     console.log d
     console.log "-----------------------------------------------\n"
+
+

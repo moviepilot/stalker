@@ -3,9 +3,19 @@ rest          = require '../vendor/restler'
 ObjectCompare = require('./object_compare').ObjectCompare
 
 class Stalker
-  constructor: (@host) ->
+  constructor: (@host, @tests, @cb) ->
+    @current = 0
 
-  probe: (def, cb) ->
+  run: ->
+    @next()
+
+  next: (summary = false) ->
+    @cb(summary) if summary
+    return unless t = @tests[@current]
+    @current++
+    @probe t
+
+  probe: (def, cb = false) ->
     uri = @host+def.uri
     options = 
       method: def.method
@@ -20,8 +30,7 @@ class Stalker
     summary = {success: true, test: def.uri, errors: {}}
     @check_status summary, response, def
     @check_object summary, data, def
-
-    cb summary
+    if cb then cb(summary) else @next(summary)
 
   check_object: (summary, data, def) ->
     return true unless def.response.body?
