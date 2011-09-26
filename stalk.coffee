@@ -15,8 +15,9 @@ verbose  = _.include(process.argv, "-v")
 tests = ExampleParser.parseFile filename
 
 report = (summary) ->
-  result = if summary.success == true then "✔" else "errors: "+JSON.stringify(summary.errors)
-  console.log "#{summary.test}: #{result}"
+  result = if summary.success == true then "✔" else "✗"
+  errors = if summary.success == true then ""  else " errors "+JSON.stringify(summary.errors)
+  console.log "#{result} #{summary.test}#{errors}"
   Shout.report host, summary
   true
 
