@@ -24,13 +24,14 @@ class Stalker
 
   probe: (def, cb = false) ->
     uri = @host+def.uri
-    options = 
+    options =
       method: def.method
       data:   JSON.stringify(def.request)
     rest.request(uri, options).on('complete', (data, response) =>
       @check_response data, response, def, cb
     ).on('error', (data, response) =>
-      @check_response data, response, def, cb
+      # console.log "#{uri} error"
+      # @check_response data, response, def, cb
     )
 
   check_response: (data, response, def, cb) ->
