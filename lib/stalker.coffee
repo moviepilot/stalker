@@ -5,15 +5,22 @@ ObjectCompare = require('./object_compare').ObjectCompare
 class Stalker
   constructor: (@host, @tests, @cb) ->
     @current = 0
+    @errors  = false
 
   run: ->
     @next()
 
   next: (summary = false) ->
     @cb(summary) if summary
-    return unless t = @tests[@current]
+    @errors = true if summary? and summary.success == false
+    return @exit() unless t = @tests[@current]
     @current++
     @probe t
+
+  exit: ->
+    status = if @errors then 1 else 0
+    process.exit status
+
 
   probe: (def, cb = false) ->
     uri = @host+def.uri
